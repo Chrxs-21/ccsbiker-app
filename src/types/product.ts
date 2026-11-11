@@ -17,10 +17,11 @@ export interface Producto {
   nombre: string;                  // Ej: "Parrilla Reforzada Keeway RKF"
   descripcion: string;             // Compatibilidad y detalles técnicos
   categoria: CategoriaProducto;    // Clasificación
-  precio: number;                  // Precio en USD
+  precio: number;                  // Precio base del repuesto en USD
+  precio_instalacion?: number;     // Costo adicional si desea instalación en taller (ej. $10)
   stock: number;                   // Cantidad disponible en taller
-  incluye_instalacion: boolean;    // Si incluye o requiere instalación en taller
-  imagen_url: string;              // URL pública de la foto en Supabase Storage
+  incluye_instalacion?: boolean;   // Si esta pieza admite servicio de instalación
+  imagen_url: string;              // URL de la foto en Supabase Storage
   created_at?: string;             // Marca de tiempo de registro
 }
 
