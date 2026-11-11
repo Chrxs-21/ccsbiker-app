@@ -21,8 +21,17 @@ import { Producto, FiltroCategoria } from './src/types/product';
 import { obtenerProductos } from './src/services/productsService';
 import { ProductCard } from './src/components/ProductCard';
 import { ProductDetailModal } from './src/components/ProductDetailModal';
+import { AdminView } from './src/views/AdminView';
 
 export default function App() {
+  // Detección de ruta secreta: si la URL contiene 'admin'
+  const [esRutaAdmin, setEsRutaAdmin] = useState<boolean>(() => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      return window.location.hash.includes('admin') || window.location.pathname.includes('admin');
+    }
+    return false;
+  });
+
   const [productos, setProductos] = useState<Producto[]>([]);
   const [cargando, setCargando] = useState<boolean>(true);
   const [refrescando, setRefrescando] = useState<boolean>(false);
@@ -30,9 +39,22 @@ export default function App() {
   const [busqueda, setBusqueda] = useState<string>('');
   const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
 
+  // Escuchar cambios de URL en la barra del navegador
   useEffect(() => {
-    cargarInventario();
-  }, [categoriaActiva]);
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      const verificarHash = () => {
+        setEsRutaAdmin(window.location.hash.includes('admin') || window.location.pathname.includes('admin'));
+      };
+      window.addEventListener('hashchange', verificarHash);
+      return () => window.removeEventListener('hashchange', verificarHash);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!esRutaAdmin) {
+      cargarInventario();
+    }
+  }, [categoriaActiva, esRutaAdmin]);
 
   const cargarInventario = async () => {
     try {
@@ -76,7 +98,26 @@ export default function App() {
     );
   }, [productos, busqueda]);
 
-  // Pie de página con redes y datos oficiales de CCSBIKER
+  // Si la URL contiene '#admin' cargamos el Panel Privado del Taller
+  if (esRutaAdmin) {
+    return (
+      <SafeAreaView style={styles.contenedor}>
+        <StatusBar barStyle="light-content" backgroundColor="#070A0F" />
+        <AdminView 
+          alSalir={() => {
+            if (Platform.OS === 'web' && typeof window !== 'undefined') {
+              window.location.hash = '';
+            }
+            setEsRutaAdmin(false);
+          }} 
+        />
+      </SafeAreaView>
+    );
+  }
+
+  // ==========================================
+  // VISTA PÚBLICA DE CATÁLOGO (CLIENTES)
+  // ==========================================
   const renderFooter = () => (
     <View style={styles.footer}>
       <View style={styles.footerDivisor} />
@@ -101,7 +142,7 @@ export default function App() {
     <SafeAreaView style={styles.contenedor}>
       <StatusBar barStyle="light-content" backgroundColor="#070A0F" />
 
-      {/* Header Limpio: Solo el Logo Oficial Centrado */}
+      {/* Header Limpio con Logo Oficial */}
       <View style={styles.headerCentrado}>
         <View style={styles.contenedorLogoCircular}>
           <Image 
@@ -128,7 +169,7 @@ export default function App() {
         )}
       </View>
 
-      {/* Selector de Categorías Horizontal Estilo Taller */}
+      {/* Selector de Categorías */}
       <View style={styles.contenedorCategorias}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollCategorias}>
           {CATEGORIAS_LISTA.map((cat) => {
@@ -148,7 +189,7 @@ export default function App() {
         </ScrollView>
       </View>
 
-      {/* Listado de Productos */}
+      {/* Catálogo */}
       {cargando ? (
         <View style={styles.centro}>
           <ActivityIndicator size="large" color={PALETA.naranjaPrimario} />
@@ -180,7 +221,7 @@ export default function App() {
         />
       )}
 
-      {/* Modal Interactivo de Detalle y Compra */}
+      {/* Modal de Detalle */}
       <ProductDetailModal
         producto={productoSeleccionado}
         visible={!!productoSeleccionado}
@@ -195,7 +236,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#070A0F',
   },
-  // Header con logo centrado
   headerCentrado: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -210,7 +250,7 @@ const styles = StyleSheet.create({
     borderRadius: 36,
     overflow: 'hidden',
     borderWidth: 2,
-    borderColor: '#FF6B00', // Aro naranja como la cadena del logo
+    borderColor: '#FF6B00',
     backgroundColor: '#000000',
     ...(Platform.OS === 'web' 
       ? ({ boxShadow: '0px 0px 10px rgba(255,107,0,0.35)' } as any) 
@@ -285,7 +325,6 @@ const styles = StyleSheet.create({
     color: '#64748B',
     fontSize: 14,
   },
-  // Pie de página
   footer: {
     paddingVertical: 24,
     alignItems: 'center',

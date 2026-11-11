@@ -60,7 +60,7 @@ export const ProductDetailModal: React.FC<Props> = ({ producto, visible, onCerra
       setCantidad(cantidad + 1);
       setAlertaStock(null);
     } else {
-      setAlertaStock(`Solo disponemos de ${stock} unidades en taller.`);
+      setAlertaStock(`Solo disponemos de ${stock} unidades.`);
     }
   };
 
@@ -69,7 +69,7 @@ export const ProductDetailModal: React.FC<Props> = ({ producto, visible, onCerra
 
   const enviarPedidoWhatsApp = () => {
     const detalleInstalacion = conInstalacion 
-      ? `⚙️ *Servicio:* Con instalación en taller (+$${precio_instalacion * cantidad} USD)` 
+      ? `⚙️ *Servicio:* Con instalación (+$${precio_instalacion * cantidad} USD)` 
       : '📦 *Servicio:* Solo producto';
 
     const mensaje = encodeURIComponent(
@@ -92,7 +92,7 @@ export const ProductDetailModal: React.FC<Props> = ({ producto, visible, onCerra
           
           {/* Header Superior del Modal Industrial */}
           <View style={styles.headerModal}>
-            <Text style={styles.headerCategoria}>// FICHA TÉCNICA: {categoria.toUpperCase()}</Text>
+            <Text style={styles.headerCategoria}>// {categoria.toUpperCase()}</Text>
             <TouchableOpacity style={styles.botonCerrar} onPress={onCerrar}>
               <Text style={styles.textoCerrar}>[ CERRAR ✕ ]</Text>
             </TouchableOpacity>
@@ -118,7 +118,7 @@ export const ProductDetailModal: React.FC<Props> = ({ producto, visible, onCerra
               <View style={styles.filaBase}>
                 <View style={styles.cajaEstadoStock}>
                   <Text style={[styles.estadoStockTexto, esCritico && styles.estadoStockCritico]}>
-                    {esAgotado ? 'ESTADO: AGOTADO' : esCritico ? `¡ALERTA: SOLO ${stock} EN TALLER!` : `ESTADO: ${stock} DISPONIBLES`}
+                    {esAgotado ? 'ESTADO: AGOTADO' : esCritico ? `¡ALERTA: SOLO QUEDAN ${stock}!` : `ESTADO: ${stock} DISPONIBLES`}
                   </Text>
                 </View>
                 <Text style={styles.precioBase}>${precio.toFixed(2)}</Text>
